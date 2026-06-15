@@ -1242,11 +1242,20 @@ async function loadStats(){
 }
 
 /* ── postMessage: comunica altura ao WordPress pai ── */
+let _lastHeight = 0;
+let _heightTimer = null;
 function notifyHeight(){
-  const h = document.body.scrollHeight;
-  if(window.parent !== window){
+  clearTimeout(_heightTimer);
+  _heightTimer = setTimeout(function(){
+    if(window.parent === window) return;
+    const h = Math.max(
+      document.documentElement.scrollHeight,
+      document.documentElement.offsetHeight
+    );
+    if(Math.abs(h - _lastHeight) < 10) return; // ignora variações pequenas
+    _lastHeight = h;
     window.parent.postMessage({ type:'sentinelas-height', height: h }, '*');
-  }
+  }, 150);
 }
 
 async function init(){
