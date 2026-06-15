@@ -1000,9 +1000,9 @@
 <!-- ══ POPUP — Pedidos ══ -->
 <div class="modal-ov" id="modal-pedidos">
   <div class="popup">
-    <div class="pu-tag">Lista de pedidos · Junho 2026</div>
+    <div class="pu-tag" id="pu-tag">Lista de pedidos · Junho 2026</div>
     <div class="pu-h">📖 Pedidos de Oração</div>
-    <div class="pu-list">
+    <div class="pu-list" id="pu-list">
       <div class="pu-item">
         <div class="pu-ih"><span class="pu-num">01</span><span class="pu-ctry">BRASIL</span></div>
         <div class="pu-txt">Ore pela expansão do Evangelho em todo o Brasil. Clame por novos evangelistas e plantadores de igrejas nas cidades e comunidades rurais.</div>
@@ -1155,7 +1155,9 @@ function updateStats(){
   document.getElementById('sb-covered').textContent = covered;
   document.getElementById('sb-pct').textContent     = pct+'%';
   document.getElementById('cnt-now').textContent    = COUNTS[CUR];
-  document.getElementById('pc-day').textContent     = new Date().getDate();
+  // dia em horário de Brasília
+  const _brFull = new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'numeric'}).format(new Date());
+  document.getElementById('pc-day').textContent = _brFull;
 }
 
 
@@ -1315,10 +1317,59 @@ function notifyHeight(){
   window.parent.postMessage({ type:'sentinelas-height', height: h }, '*');
 }
 
+const WP_API = 'https://everyhome.org.br/wp-json/sentinelas/v1';
+
+async function loadWordPressData(){
+  try {
+    // MOD — Momento de Oração Diário
+    const modRes = await fetch(WP_API + '/mod');
+    if(modRes.ok){
+      const mod = await modRes.json();
+      if(mod.pais)  document.getElementById('pc-country').textContent = mod.pais.toUpperCase();
+      if(mod.texto) document.getElementById('pc-text').textContent    = mod.texto;
+      if(mod.dia)   document.getElementById('pc-day').textContent     = mod.dia;
+    }
+  } catch(e){}
+
+  try {
+    // Pedidos de Oração
+    const pedRes = await fetch(WP_API + '/pedidos');
+    if(pedRes.ok){
+      const pedidos = await pedRes.json();
+      if(pedidos && pedidos.length){
+        const list = document.getElementById('pu-list');
+        if(list){
+          list.innerHTML = '';
+          pedidos.forEach(function(p, i){
+            const num = String(i+1).padStart(2,'0');
+            const div = document.createElement('div');
+            div.className = 'pu-item';
+            div.innerHTML = '<div class="pu-ih"><span class="pu-num">'+num+'</span><span class="pu-ctry">'+escHtml(p.titulo)+'</span></div>'
+              + '<div class="pu-txt">'+escHtml(p.texto)+'</div>';
+            list.appendChild(div);
+          });
+        }
+        // Atualiza label do mês no popup
+        const tag = document.getElementById('pu-tag');
+        if(tag){
+          const now = new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',month:'long',year:'numeric'}).format(new Date());
+          tag.textContent = 'Lista de pedidos · ' + now.charAt(0).toUpperCase() + now.slice(1);
+        }
+      }
+    }
+  } catch(e){}
+}
+
+function escHtml(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 async function init(){
   await loadCounts();
   buildWall();
   await loadStats();
+  loadWordPressData();
   notifyHeight();
 
   /* Realtime: atualiza ao vivo quando qualquer pessoa se cadastra */
