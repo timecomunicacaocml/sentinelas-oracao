@@ -23,6 +23,16 @@
     flex-direction: column;
     overflow: hidden;
   }
+  /* Quando dentro de iframe: deixa altura livre e sem overflow */
+  body.in-iframe, body.in-iframe html {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  #app-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
 
   /* ══ HEADER ══ */
   .header {
@@ -629,6 +639,7 @@
 </style>
 </head>
 <body>
+<div id="app-wrap">
 
 <!-- ══ HEADER ══ -->
 <header class="header">
@@ -1241,21 +1252,24 @@ async function loadStats(){
   }
 }
 
-/* ── postMessage: comunica altura ao WordPress pai ── */
-let _lastHeight = 0;
-let _heightTimer = null;
+/* ── postMessage: comunica altura ao WordPress pai (sem loop) ── */
+const IN_IFRAME = window.parent !== window;
+if(IN_IFRAME){
+  document.documentElement.style.height = 'auto';
+  document.documentElement.style.overflow = 'visible';
+  document.body.style.height = 'auto';
+  document.body.style.overflow = 'visible';
+}
+let _heightSent = 0;
+
 function notifyHeight(){
-  clearTimeout(_heightTimer);
-  _heightTimer = setTimeout(function(){
-    if(window.parent === window) return;
-    const h = Math.max(
-      document.documentElement.scrollHeight,
-      document.documentElement.offsetHeight
-    );
-    if(Math.abs(h - _lastHeight) < 10) return; // ignora variações pequenas
-    _lastHeight = h;
-    window.parent.postMessage({ type:'sentinelas-height', height: h }, '*');
-  }, 150);
+  if(!IN_IFRAME) return;
+  /* Usa offsetHeight do wrapper real, não scrollHeight do body */
+  const wrap = document.getElementById('app-wrap');
+  const h = wrap ? wrap.offsetHeight : document.documentElement.offsetHeight;
+  if(h === _heightSent) return;
+  _heightSent = h;
+  window.parent.postMessage({ type:'sentinelas-height', height: h }, '*');
 }
 
 async function init(){
@@ -1270,7 +1284,6 @@ async function init(){
       await loadCounts();
       buildWall();
       await loadStats();
-      notifyHeight();
     })
     .subscribe();
 
@@ -1280,12 +1293,10 @@ async function init(){
     buildWall();
     await loadStats();
   }, 60000);
-
-  /* Notifica altura ao redimensionar (ex: girar celular) */
-  window.addEventListener('resize', notifyHeight);
 }
 
 init();
 </script>
+</div><!-- #app-wrap -->
 </body>
 </html>
