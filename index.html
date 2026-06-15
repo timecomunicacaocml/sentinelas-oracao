@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinelas de Oração — Every Home Brasil</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --gd: #305448;
+    --gm: #4fa065;
+    --gl: #b7e0da;
+    --dg: #2a282b;
+  }
+
+  html, body {
+    font-family: 'Helvetica Now Text','Helvetica Neue',Helvetica,Arial,sans-serif;
+    background: var(--gd);
+    color: #fff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ══ HEADER ══ */
+  .header {
+    background: var(--dg);
+    padding: 26px 48px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    gap: 24px;
+  }
+
+  .logo-area { display: flex; align-items: center; gap: 22px; flex-shrink: 0; }
+  .logo-img  { height: 72px; width: auto; display: block; }
+  .logo-text h1 { font-size: 32px; font-weight: 800; color: #fff; line-height: 1.15; }
+  .logo-text p  { font-size: 13px; font-weight: 500; color: rgba(255,255,255,.85); margin-top: 4px; }
+
+  /* Lado direito do header: contadores + pill */
+  .header-right {
+    display: flex; flex-direction: column;
+    align-items: flex-end; gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .counters { display: flex; gap: 14px; }
+  .cbox {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 26px;
+    text-align: center;
+    min-width: 132px;
+  }
+  .cbox .num { font-size: 42px; font-weight: 900; color: var(--gm); line-height: 1; font-variant-numeric: tabular-nums; }
+  .cbox.live .num { animation: numFlicker 2.5s ease-in-out infinite; }
+  @keyframes numFlicker {
+    0%,100% { color: var(--gm); }
+    50%      { color: #3d8052; }
+  }
+  .cbox .lbl { font-size: 11px; font-weight: 700; color: #2a282b; text-transform: uppercase; letter-spacing: .6px; margin-top: 5px; }
+
+  /* Pill de stats — clara, como na referência */
+  .pill-row { display: flex; align-items: center; gap: 8px; }
+  .sb-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--gl);
+    border-radius: 7px;
+    padding: 8px 16px;
+  }
+  .sb-txt { font-size: 13px; font-weight: 400; color: var(--gd); letter-spacing: .4px; text-transform: uppercase; }
+  .sb-txt strong { color: var(--gd); }
+  .sb-dot { width: 6px; height: 6px; background: var(--gd); border-radius: 1px; flex-shrink: 0; }
+  .sb-pct {
+    background: #fff;
+    border-radius: 7px;
+    padding: 8px 14px;
+    font-size: 14px; font-weight: 800; color: #2a282b;
+    white-space: nowrap;
+  }
+
+  /* ══ MAIN — 2 COLUNAS ══ */
+  .main {
+    flex: 1;
+    display: flex;
+    gap: 28px;
+    padding: 32px 48px 0;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* ── PAINEL ESQUERDO — Muralha (FUNDO BRANCO) ── */
+  .wall-panel {
+    flex: 0 0 61%;
+    background: #ffffff;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    min-width: 0;
+    color: #2a282b;
+  }
+  .wall-panel::-webkit-scrollbar { width: 5px; }
+  .wall-panel::-webkit-scrollbar-thumb { background: rgba(48,84,72,.15); border-radius: 3px; }
+
+  /* Abas de período + legenda */
+  .wall-tabs {
+    display: flex; align-items: center; gap: 36px;
+    padding: 4px 30px 0;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0; flex-wrap: wrap;
+  }
+  .wtab {
+    display: flex; align-items: center; gap: 11px;
+    padding: 16px 2px;
+    cursor: pointer; position: relative;
+    background: none; border: none; font-family: inherit;
+  }
+  .wtab .ic { font-size: 21px; line-height: 1; }
+  .wtab .nm { font-size: 15px; font-weight: 700; color: #222; line-height: 1.2; text-align: left; }
+  .wtab .rg { font-size: 13px; color: #555; font-weight: 500; text-align: left; }
+  .wtab.active .nm { font-weight: 800; }
+  .wtab.active::after {
+    content: ''; position: absolute;
+    bottom: -1px; left: 0; right: 0; height: 4px;
+    background: #2e7d4f; border-radius: 4px 4px 0 0;
+  }
+  .wtab:hover .nm { color: #2e7d4f; }
+
+  /* margin-top:auto empurra legenda + "Como funciona?" para a base do painel */
+  .wall-legend2 { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; padding: 18px 34px 4px; flex-shrink: 0; margin-top: auto; }
+  .lg2 { display: flex; gap: 9px; align-items: center; }
+  .lg2 .d  { width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0; }
+  .lg2 .t  { font-size: 13px; font-weight: 600; color: #333; line-height: 1.25; }
+  .lg2 .s  { font-size: 12px; color: #888; font-weight: 500; line-height: 1.2; }
+
+  /* Grade de blocos do período ativo */
+  .blocks-area {
+    padding: 26px 30px 8px;
+    display: grid;
+    grid-template-columns: repeat(13, 1fr);
+    gap: 13px;
+    flex-shrink: 0;
+  }
+
+  .wb {
+    border-radius: 12px;
+    border: 1.5px solid transparent;
+    min-height: 100px;
+    padding: 10px 4px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 9px;
+    cursor: pointer;
+    position: relative;
+    transition: transform .12s, box-shadow .12s;
+    user-select: none;
+  }
+  .wb:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(48,84,72,.16); z-index: 5; }
+  .wb:active { transform: scale(.97); }
+
+  .wb-time  { font-size: 14px; font-weight: 600; color: #222; line-height: 1; }
+  .wb-mid   { display: flex; align-items: center; gap: 5px; }
+  .wb-count { font-size: 17px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .wb-lbl   { font-size: 12px; font-weight: 600; line-height: 1; }
+
+  .wb.is-now {
+    border: 2px solid #2563eb;
+    box-shadow: 0 0 0 3px #dbe7ff;
+    animation: nowPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes nowPulse {
+    0%,100% { box-shadow: 0 0 0 3px #dbe7ff; }
+    50%      { box-shadow: 0 0 0 5px #c4d8ff; }
+  }
+  .agora-tag {
+    position: absolute; top: -11px; left: 50%;
+    transform: translateX(-50%);
+    background: #2563eb;
+    color: #fff; font-size: 10px; font-weight: 800;
+    padding: 3px 11px; border-radius: 50px;
+    letter-spacing: .8px; white-space: nowrap;
+  }
+  /* Bloco assumido pelo visitante (salvo no navegador) */
+  .wb.is-mine {
+    border: 2px solid #c9a227 !important;
+    box-shadow: 0 0 0 3px #f3e6bd;
+  }
+  .voce-tag {
+    position: absolute; top: -11px; left: 50%;
+    transform: translateX(-50%);
+    background: #c9a227;
+    color: #fff; font-size: 10px; font-weight: 800;
+    padding: 3px 11px; border-radius: 50px;
+    letter-spacing: .8px; white-space: nowrap;
+  }
+
+  /* Barra "Como funciona?" */
+  .how-bar {
+    margin: 18px 30px 26px;
+    background: #f5f5f7;
+    border-radius: 14px;
+    padding: 18px 26px;
+    display: flex; align-items: center; gap: 24px;
+    flex-shrink: 0;
+  }
+  .how-logo { height: 60px; width: auto; flex-shrink: 0; }
+  .how-t { font-size: 15px; font-weight: 800; color: #222; margin-bottom: 5px; }
+  .how-s { font-size: 13px; color: #555; line-height: 1.6; max-width: 600px; }
+
+  /* ── PAINEL DIREITO ── */
+  .right-panel {
+    flex: 1; min-width: 0;
+    background: var(--dg);
+    border-radius: 24px;
+    padding: 28px 30px 26px;
+    display: flex; flex-direction: column;
+    gap: 22px;
+    overflow: hidden;
+  }
+
+  /* Card Momento de Oração Diário — cabeçalho VERDE como na referência */
+  .prayer-card {
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 6px 24px rgba(0,0,0,.35);
+  }
+
+  .pc-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 18px;
+    background: var(--gd);
+  }
+  .pc-day   { font-size: 26px; font-weight: 900; color: #fff; line-height: 1; }
+  .pc-sep   { font-size: 22px; color: rgba(255,255,255,.35); font-weight: 300; }
+  .pc-country { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 1px; flex: 1; }
+  .pc-badge {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; color: #fff;
+    white-space: nowrap;
+  }
+
+  .pc-text {
+    background: #fff;
+    padding: 18px 20px;
+    font-size: 13.5px; line-height: 1.65; color: #2a282b;
+  }
+
+  /* Recursos */
+  .res-section { display: flex; flex-direction: column; gap: 18px; flex: 1; min-height: 0; }
+  .res-title {
+    font-size: 17px; font-weight: 800;
+    color: #fff;
+    letter-spacing: .6px; text-transform: uppercase;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .res-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 18px;
+    padding: 0 8px;
+    flex: 1; min-height: 0;
+  }
+
+  .res-card { display: flex; flex-direction: column; align-items: center; gap: 12px; min-height: 0; }
+
+  /* Capa container — imagem inteira (sem corte), adapta à altura disponível */
+  .res-cover {
+    flex: 1; min-height: 120px;
+    width: 100%;
+    display: flex; align-items: flex-start; justify-content: center;
+    position: relative;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  .res-cover.no-img { aspect-ratio: 9/14.2; }
+  .res-cover:hover { transform: scale(1.03); }
+
+  .res-cover img {
+    max-width: 100%; max-height: 100%;
+    width: auto; height: auto;
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.4);
+  }
+  .res-cover img.hidden { display: none; }
+
+  /* Fallback CSS — Pedidos */
+  .cov-pedidos {
+    background: linear-gradient(160deg,#f08030 0%,#c85010 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between;
+    padding: 12px 8px 10px;
+  }
+  .cov-pedidos .ring {
+    width: 32px; height: 32px;
+    border: 1.5px solid rgba(255,255,255,.65); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cov-pedidos .cp-title {
+    font-size: 15px; font-weight: 900; color: #fff;
+    text-align: center; line-height: 1.1; text-transform: uppercase;
+    flex: 1; display: flex; align-items: center;
+  }
+  .cov-pedidos .cp-people { font-size: 22px; opacity: .8; }
+
+  /* Fallback CSS — Como Orar */
+  .cov-como {
+    background: linear-gradient(180deg,#dde6e8 0%,#bccdd0 55%,#8a9a98 100%);
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    padding: 10px 8px 12px;
+  }
+  .cov-como .cc-top { text-align: center; }
+  .cov-como .cc-h   { font-size: 13px; font-weight: 900; color: #2a5548; text-transform: uppercase; line-height: 1.2; }
+  .cov-como .cc-s   {
+    font-size: 6.5px; font-weight: 700; color: #2a5548;
+    border: 1px solid #2a5548; border-radius: 2px;
+    padding: 2px 4px; display: inline-block; margin-top: 5px;
+    letter-spacing: .3px; line-height: 1.3;
+  }
+  .cov-como .cc-auth { font-size: 8.5px; font-weight: 700; color: #4a6060; text-align: center; }
+
+  /* Fallback CSS — Mapa */
+  .cov-mapa {
+    background: linear-gradient(160deg,#d4c9a8 0%,#b8a882 50%,#8a7a5a 100%);
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+  }
+  .cov-mapa .cm-top {
+    padding: 10px 8px 0;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .cov-mapa .cm-eh  { font-size: 7.5px; font-weight: 700; color: rgba(255,255,255,.75); letter-spacing: .8px; text-align: center; }
+  .cov-mapa .cm-banner { background: #305448; padding: 9px 8px 7px; }
+  .cov-mapa .cm-sub   { font-size: 8px; color: rgba(255,255,255,.6); }
+  .cov-mapa .cm-title { font-size: 12px; font-weight: 800; color: #fff; }
+
+  /* Botões — compactos, centralizados, como o exemplo enviado */
+  .res-btn {
+    background: var(--gm); border: none;
+    border-radius: 9px; padding: 11px 26px;
+    color: #fff; font-size: 15px; font-weight: 800;
+    cursor: pointer; font-family: inherit;
+    letter-spacing: .5px; text-transform: uppercase;
+    transition: all .15s;
+  }
+  .res-btn:hover { background: #3d8052; transform: translateY(-1px); }
+
+  /* ══ FOOTER — transparente sobre o verde ══ */
+  .footer {
+    display: flex; align-items: center;
+    flex-shrink: 0;
+    padding: 18px 48px 20px;
+    gap: 28px;
+  }
+
+  .footer-left {
+    flex: 0 0 61%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .footer-right {
+    flex: 1;
+    text-align: right;
+  }
+  .fr-title { font-size: 13px; font-weight: 800; color: #fff; }
+  .fr-sub   { font-size: 10px; font-weight: 600; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .5px; margin-top: 3px; }
+
+  .btn-sentinel {
+    background: var(--gm); border: none; border-radius: 10px;
+    padding: 13px 28px; color: #fff;
+    font-size: 13px; font-weight: 800;
+    flex-shrink: 0; margin-left: auto;
+    cursor: pointer; letter-spacing: .5px; text-transform: uppercase;
+    font-family: inherit; text-align: center; line-height: 1.3;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    transition: all .2s;
+  }
+  .btn-sentinel:hover { background: #3d8052; transform: translateY(-1px); box-shadow: 0 6px 22px rgba(0,0,0,.35); }
+
+  /* ══ TOOLTIP ══ */
+  .blk-tip {
+    position: fixed; background: #fff;
+    border: 1px solid rgba(48,84,72,.15);
+    border-radius: 8px; padding: 9px 13px;
+    font-size: 10.5px; z-index: 8000;
+    pointer-events: none; opacity: 0;
+    transition: opacity .1s;
+    max-width: 185px; line-height: 1.5;
+    box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    color: #2a2a2a;
+  }
+  .blk-tip.show { opacity: 1; }
+  .bt-time  { font-size: 12px; font-weight: 800; color: var(--gd); margin-bottom: 3px; }
+  .bt-count { font-size: 10.5px; font-weight: 700; color: var(--gm); margin-bottom: 3px; }
+  .bt-names { color: rgba(42,42,42,.55); }
+  .bt-empty { color: var(--gm); font-style: italic; }
+
+  /* ══ MODAL — CADASTRO ══ */
+  .modal-ov {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.82); backdrop-filter: blur(7px);
+    z-index: 9000; align-items: center; justify-content: center;
+  }
+  .modal-ov.open { display: flex; }
+
+  .modal {
+    background: #2a282b;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 18px; padding: 32px;
+    width: 100%; max-width: 460px;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 24px 64px rgba(0,0,0,.7);
+  }
+  .modal::-webkit-scrollbar { width: 4px; }
+  .modal::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 2px; }
+
+  .m-header {
+    display: flex; align-items: center; gap: 14px;
+    padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,.07); margin-bottom: 18px;
+  }
+  .m-logo {
+    width: 48px; height: 48px;
+    background: rgba(79,160,101,.1); border: 1px solid rgba(79,160,101,.22);
+    border-radius: 11px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; padding: 10px;
+  }
+  .m-logo svg { width: 100%; height: 100%; }
+  .m-htxt span { font-size: 9.5px; color: var(--gm); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; }
+  .m-htxt h2   { font-size: 18px; font-weight: 800; color: #fff; margin-top: 3px; }
+
+  .sel-slot {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(79,160,101,.07); border: 1px solid rgba(79,160,101,.18);
+    border-radius: 10px; padding: 13px 16px; margin-bottom: 18px;
+  }
+  .ss-icon  { font-size: 22px; flex-shrink: 0; }
+  .ss-info  { flex: 1; }
+  .ss-time  { font-size: 18px; font-weight: 800; color: var(--gm); line-height: 1.1; }
+  .ss-sub   { font-size: 10px; color: rgba(255,255,255,.32); margin-top: 2px; }
+  .ss-chg   {
+    font-size: 9.5px; color: rgba(79,160,101,.65); cursor: pointer;
+    text-decoration: underline; text-underline-offset: 2px;
+    background: none; border: none; font-family: inherit; transition: color .15s;
+  }
+  .ss-chg:hover { color: var(--gm); }
+
+  .mini-ov { display: none; margin-bottom: 14px; }
+  .mini-ov.open { display: block; }
+  .mini-lbl { font-size: 9.5px; font-weight: 600; color: rgba(255,255,255,.32); text-transform: uppercase; letter-spacing: 1.1px; margin-bottom: 7px; }
+  .mini-scr { max-height: 155px; overflow-y: auto; }
+  .mini-scr::-webkit-scrollbar { width: 4px; }
+  .mini-scr::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 2px; }
+  .mini-period { margin-bottom: 7px; }
+  .mini-pname  { font-size: 8.5px; font-weight: 700; color: rgba(255,255,255,.25); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .mini-grid   { display: grid; grid-template-columns: repeat(8,1fr); gap: 3px; }
+  .mini-b {
+    border-radius: 4px; border: 1px solid rgba(255,255,255,.07);
+    background: rgba(255,255,255,.03); height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 7px; font-weight: 600; color: rgba(255,255,255,.28);
+    cursor: pointer; transition: all .12s;
+  }
+  .mini-b:hover { background: rgba(79,160,101,.12); border-color: rgba(79,160,101,.28); color: var(--gm); }
+  .mini-b.sel   { background: rgba(79,160,101,.22); border-color: rgba(79,160,101,.5); color: var(--gm); font-weight: 800; }
+
+  .m-sub { font-size: 11.5px; color: rgba(255,255,255,.4); margin-bottom: 16px; line-height: 1.7; }
+  .fg    { margin-bottom: 12px; }
+  .fg label {
+    display: block; font-size: 9.5px; font-weight: 600;
+    color: rgba(255,255,255,.36); text-transform: uppercase;
+    letter-spacing: 1.1px; margin-bottom: 5px;
+  }
+  .fg input, .fg select {
+    width: 100%; background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 9px; padding: 11px 13px;
+    color: #fff; font-size: 14px; font-family: inherit; outline: none;
+    transition: border-color .2s;
+  }
+  .fg input::placeholder { color: rgba(255,255,255,.18); }
+  .fg input:focus, .fg select:focus { border-color: rgba(79,160,101,.42); }
+  .fg select option { background: #1a1f28; }
+  .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+
+  .commit {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 9px; padding: 11px 13px; margin: 13px 0;
+  }
+  .commit span { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .commit p    { font-size: 11px; color: rgba(255,255,255,.38); line-height: 1.65; }
+
+  /* Estado de sucesso do cadastro */
+  #m-success { text-align: center; padding: 18px 0 4px; }
+  .suc-icon  { display: flex; justify-content: center; margin-bottom: 18px; }
+  .suc-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+  .suc-msg   { font-size: 14px; color: rgba(255,255,255,.6); line-height: 1.6; }
+  .suc-msg strong { color: var(--gm); }
+  .m-err { margin-top: 12px; font-size: 12.5px; color: #e89c9c; text-align: center; }
+  .spin {
+    display: inline-block; width: 13px; height: 13px;
+    border: 2px solid rgba(255,255,255,.35); border-top-color: #fff;
+    border-radius: 50%; vertical-align: -2px;
+    animation: spinRot .7s linear infinite;
+  }
+  @keyframes spinRot { to { transform: rotate(360deg); } }
+
+  .fg input.f-err, .fg select.f-err { border-color: #e05252 !important; }
+
+  .m-footer { display: flex; gap: 10px; margin-top: 16px; }
+  .btn-ok {
+    flex: 1; background: var(--gm); border: none;
+    border-radius: 50px; padding: 13px; color: #fff;
+    font-size: 13px; font-weight: 800; cursor: pointer;
+    font-family: inherit; box-shadow: 0 4px 16px rgba(79,160,101,.28);
+    transition: background .2s;
+  }
+  .btn-ok:hover { background: #3d8052; }
+  .btn-cl {
+    background: transparent; border: 1px solid rgba(255,255,255,.09);
+    border-radius: 50px; padding: 13px 18px;
+    color: rgba(255,255,255,.3); font-size: 12px;
+    cursor: pointer; font-family: inherit; transition: all .2s;
+  }
+  .btn-cl:hover { border-color: rgba(255,255,255,.24); color: rgba(255,255,255,.55); }
+
+  /* ══ POPUP — PEDIDOS ══ */
+  .popup {
+    background: var(--dg);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 18px; padding: 28px;
+    width: 100%; max-width: 520px;
+    max-height: 82vh; display: flex; flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0,0,0,.7);
+  }
+  .pu-tag   { font-size: 10px; font-weight: 800; color: rgba(79,160,101,.75); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 3px; }
+  .pu-h     { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 18px; }
+  .pu-list  { overflow-y: auto; flex: 1; }
+  .pu-list::-webkit-scrollbar { width: 4px; }
+  .pu-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 2px; }
+  .pu-item  { border-bottom: 1px solid rgba(255,255,255,.05); padding: 13px 0; }
+  .pu-item:last-child { border-bottom: none; }
+  .pu-ih    { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+  .pu-num   { font-size: 10px; font-weight: 800; color: var(--gm); }
+  .pu-ctry  { font-size: 13px; font-weight: 700; color: #fff; }
+  .pu-txt   { font-size: 11.5px; color: rgba(255,255,255,.48); line-height: 1.65; }
+  .pu-close {
+    margin-top: 16px; background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.09); border-radius: 50px;
+    padding: 9px 24px; color: rgba(255,255,255,.45);
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    font-family: inherit; align-self: center; transition: all .2s;
+  }
+  .pu-close:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 80px; left: 50%;
+    transform: translateX(-50%) translateY(18px);
+    background: var(--dg); border: 1px solid rgba(79,160,101,.35);
+    border-radius: 50px; padding: 10px 22px;
+    font-size: 12px; color: #fff; z-index: 99999;
+    opacity: 0; transition: all .35s cubic-bezier(.34,1.56,.64,1);
+    white-space: nowrap; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ══ MOBILE ══ */
+  @media (max-width: 1100px) {
+    .header { padding: 18px 24px; }
+    .main   { padding: 20px 24px 0; gap: 18px; }
+    .footer { padding: 20px 24px 24px; }
+    .right-panel { padding: 24px 22px; gap: 20px; }
+    .logo-img { height: 56px; }
+    .logo-text h1 { font-size: 24px; }
+    .cbox { min-width: 104px; padding: 10px 18px; }
+    .cbox .num { font-size: 32px; }
+  }
+  @media (max-width: 900px) {
+    html, body { overflow: auto; height: auto; }
+    .main { flex-direction: column; overflow: visible; }
+    .wall-panel { flex: none; height: 480px; }
+    .footer { flex-direction: column; gap: 18px; }
+    .footer-left { flex: none; width: 100%; }
+    .footer-right { text-align: center; }
+    .header { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .header-right { align-items: flex-start; width: 100%; }
+  }
+  @media (max-width: 640px) {
+    .header { padding: 14px 16px; }
+    .logo-img { height: 44px; }
+    .logo-text h1 { font-size: 19px; }
+    .logo-text p  { font-size: 10px; }
+    .counters { width: 100%; }
+    .cbox { min-width: 0; flex: 1; padding: 8px 10px; }
+    .cbox .num { font-size: 24px; }
+    .cbox .lbl { font-size: 8px; }
+    .pill-row { width: 100%; }
+    .sb-pill { flex: 1; }
+    .sb-txt { font-size: 10px; }
+    .main { padding: 14px 14px 0; gap: 14px; }
+    .right-panel { padding: 20px 16px; }
+    .res-grid { gap: 10px; padding: 0; }
+    .res-btn { padding: 10px 16px; font-size: 12px; }
+    .modal-ov { align-items: flex-end; }
+    .modal { border-radius: 18px 18px 0 0; padding: 22px 16px 28px; max-height: 90vh; }
+    .frow { grid-template-columns: 1fr; gap: 0; }
+    .fg input, .fg select { font-size: 16px; }
+    .m-footer { flex-direction: column; gap: 8px; }
+    .mini-grid { grid-template-columns: repeat(6,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="header">
+  <div class="logo-area">
+    <img src="EveryHome_RGB_Symbol_White.jpg" alt="EveryHome" class="logo-img"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <svg height="64" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none;flex-shrink:0">
+      <g fill="white" opacity=".95">
+        <ellipse cx="30" cy="8"  rx="5.5" ry="9"/>
+        <ellipse cx="30" cy="52" rx="5.5" ry="9"/>
+        <ellipse cx="8"  cy="30" rx="9"   ry="5.5"/>
+        <ellipse cx="52" cy="30" rx="9"   ry="5.5"/>
+        <ellipse cx="13" cy="13" rx="5.5" ry="9" transform="rotate(-45 13 13)"/>
+        <ellipse cx="47" cy="47" rx="5.5" ry="9" transform="rotate(-45 47 47)"/>
+        <ellipse cx="47" cy="13" rx="5.5" ry="9" transform="rotate(45 47 13)"/>
+        <ellipse cx="13" cy="47" rx="5.5" ry="9" transform="rotate(45 13 47)"/>
+        <circle  cx="30" cy="30" r="7"/>
+      </g>
+    </svg>
+    <div class="logo-text">
+      <h1>Sentinelas de Oração</h1>
+      <p>ORE COM MILHARES DE CRISTÃOS EM TODO O MUNDO!</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="counters">
+      <div class="cbox live"><div class="num" id="cnt-now">—</div><div class="lbl">Orando Agora</div></div>
+      <div class="cbox"><div class="num">1.284</div><div class="lbl">Sentinelas</div></div>
+      <div class="cbox hm"><div class="num">38</div><div class="lbl">Países</div></div>
+    </div>
+    <div class="pill-row">
+      <div class="sb-pill">
+        <span class="sb-txt">Muralha de Oração <span class="sb-dot" style="display:inline-block;margin:0 4px 1px"></span> <strong id="sb-covered">—</strong> de 96 blocos cobertos <span style="opacity:.55;font-size:11px;text-transform:none;letter-spacing:.2px">· horário de Brasília</span></span>
+      </div>
+      <span class="sb-pct" id="sb-pct">—%</span>
+    </div>
+  </div>
+</header>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- ── Painel Esquerdo: Muralha (BRANCO) ── -->
+  <div class="wall-panel">
+
+    <!-- Abas de período + legenda -->
+    <div class="wall-tabs" id="wall-tabs">
+      <!-- abas geradas via JS -->
+    </div>
+
+    <!-- Grade do período ativo -->
+    <div class="blocks-area" id="blocks-area"></div>
+
+    <!-- Legenda abaixo da grade -->
+    <div class="wall-legend2">
+      <div class="lg2"><span class="d" style="background:#fff;border:1.5px solid #e89c9c"></span><span><div class="t">Vazio</div></span></div>
+      <div class="lg2"><span class="d" style="background:#d9ecdd"></span><span><div class="t">Poucos</div><div class="s">1–5</div></span></div>
+      <div class="lg2"><span class="d" style="background:#7fc492"></span><span><div class="t">Vários</div><div class="s">10–50</div></span></div>
+      <div class="lg2"><span class="d" style="background:#1e5631"></span><span><div class="t">Muitos</div><div class="s">50+</div></span></div>
+      <div class="lg2"><span class="d" style="background:#2563eb;box-shadow:0 0 0 2.5px #dbe7ff"></span><span><div class="t">Agora</div></span></div>
+    </div>
+
+    <!-- Como funciona -->
+    <div class="how-bar">
+      <img src="BlackEveryHome_RGB_VerticalLockup_Charcoal.png" alt="EveryHome" class="how-logo" onerror="this.style.display='none'">
+      <div style="flex:1;min-width:0">
+        <div class="how-t">Como funciona?</div>
+        <div class="how-s">Clique em qualquer horário desejado, para assumir 15 minutos de oração diária. Você ajudará a manter nossa muralha de oração ativa 24 horas por dia.</div>
+      </div>
+      <button class="btn-sentinel" onclick="openModal(null)">Quero ser um<br>Sentinela de Oração!</button>
+    </div>
+  </div>
+
+  <!-- ── Painel Direito ── -->
+  <div class="right-panel">
+
+    <!-- Momento de Oração Diário -->
+    <div class="prayer-card">
+      <div class="pc-header">
+        <span class="pc-day" id="pc-day">12</span>
+        <span class="pc-sep">|</span>
+        <span class="pc-country" id="pc-country">BRASIL</span>
+        <span class="pc-badge"><img src="EveryHome_HomeShape_White.png" alt="" style="height:20px;width:auto;display:block" onerror="this.style.display='none'"> Momento de Oração Diário</span>
+      </div>
+      <div class="pc-text" id="pc-text">
+        Ore pela expansão do Evangelho em todo o Brasil. Peça que o Espírito Santo abra corações nas cidades, comunidades rurais e territórios indígenas. Clame por uma nova geração de evangelistas e plantadores de igrejas comprometidos com a Grande Comissão.
+      </div>
+    </div>
+
+    <!-- Recursos -->
+    <div class="res-section">
+      <div class="res-title">Acesse Nossos Recursos de Oração</div>
+      <div class="res-grid">
+
+        <!-- Pedidos de Oração -->
+        <div class="res-card">
+          <div class="res-cover" onclick="openPrayerPopup()">
+            <img src="pedidos-oracao.jpg" alt="Pedidos de Oração"
+                 onerror="this.classList.add('hidden');this.parentElement.classList.add('no-img');this.nextElementSibling.style.display='flex'">
+            <div class="cov-pedidos" style="display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:space-between;padding:12px 8px 10px">
+              <div class="ring">
+                <svg viewBox="0 0 40 40" fill="none" width="20" height="20">
+                  <circle cx="20" cy="20" r="18" stroke="white" stroke-width="1.5" fill="none"/>
+                  <g fill="white" opacity=".9">
+                    <ellipse cx="20" cy="6"  rx="3" ry="5"/>
+                    <ellipse cx="20" cy="34" rx="3" ry="5"/>
+                    <ellipse cx="6"  cy="20" rx="5" ry="3"/>
+                    <ellipse cx="34" cy="20" rx="5" ry="3"/>
+                    <ellipse cx="9"  cy="9"  rx="3" ry="5" transform="rotate(-45 9 9)"/>
+                    <ellipse cx="31" cy="31" rx="3" ry="5" transform="rotate(-45 31 31)"/>
+                    <ellipse cx="31" cy="9"  rx="3" ry="5" transform="rotate(45 31 9)"/>
+                    <ellipse cx="9"  cy="31" rx="3" ry="5" transform="rotate(45 9 31)"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="cp-title">Pedidos<br>de Oração</div>
+              <div class="cp-people">🙏</div>
+            </div>
+          </div>
+          <button class="res-btn" onclick="openPrayerPopup()">Acessar</button>
+        </div>
+
+        <!-- Como Orar -->
+        <div class="res-card">
+          <div class="res-cover" onclick="window.open('https://everyhome.org.br/como-orar/#form-description','_blank')">
+            <img src="como-orar.jpg" alt="Como Orar"
+                 onerror="this.classList.add('hidden');this.parentElement.classList.add('no-img');this.nextElementSibling.style.display='flex'">
+            <div class="cov-como" style="display:none;position:absolute;inset:0;flex-direction:column;justify-content:space-between;padding:10px 8px 12px">
+              <div class="cc-top">
+                <div class="cc-h">Como Orar</div>
+                <div class="cc-s">Um plano prático de oração pessoal</div>
+              </div>
+              <div class="cc-auth">Dick Eastman</div>
+            </div>
+          </div>
+          <button class="res-btn" onclick="window.open('https://everyhome.org.br/como-orar/#form-description','_blank')">Baixar</button>
+        </div>
+
+        <!-- Mapa de Oração Mundial -->
+        <div class="res-card">
+          <div class="res-cover" onclick="window.open('https://everyhome.org.br/mapamundialoracao/#form-description','_blank')">
+            <img src="mapa-mundial.jpg" alt="Mapa de Oração Mundial"
+                 onerror="this.classList.add('hidden');this.parentElement.classList.add('no-img');this.nextElementSibling.style.display='flex'">
+            <div class="cov-mapa" style="display:none;position:absolute;inset:0;flex-direction:column;justify-content:space-between">
+              <div class="cm-top">
+                <svg viewBox="0 0 44 44" fill="none" width="24" height="24">
+                  <g fill="rgba(255,255,255,0.75)">
+                    <ellipse cx="22" cy="6"  rx="3.5" ry="5.5"/>
+                    <ellipse cx="22" cy="38" rx="3.5" ry="5.5"/>
+                    <ellipse cx="6"  cy="22" rx="5.5" ry="3.5"/>
+                    <ellipse cx="38" cy="22" rx="5.5" ry="3.5"/>
+                    <ellipse cx="9"  cy="9"  rx="3.5" ry="5.5" transform="rotate(-45 9 9)"/>
+                    <ellipse cx="35" cy="35" rx="3.5" ry="5.5" transform="rotate(-45 35 35)"/>
+                    <ellipse cx="35" cy="9"  rx="3.5" ry="5.5" transform="rotate(45 35 9)"/>
+                    <ellipse cx="9"  cy="35" rx="3.5" ry="5.5" transform="rotate(45 9 35)"/>
+                    <circle  cx="22" cy="22" r="5"/>
+                  </g>
+                </svg>
+                <div class="cm-eh">EveryHome</div>
+              </div>
+              <div class="cm-banner">
+                <div class="cm-sub">Mapa de</div>
+                <div class="cm-title">Oração Mundial</div>
+              </div>
+            </div>
+          </div>
+          <button class="res-btn" onclick="window.open('https://everyhome.org.br/mapamundialoracao/#form-description','_blank')">Baixar</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="footer">
+  <div class="footer-right">
+    <div class="fr-title">Sentinelas de Oração - Every Home Brasil</div>
+    <div class="fr-sub">Junte-se a cristãos cobrindo 24h de intercessão pelo mundo.</div>
+  </div>
+</div>
+
+<!-- ══ MODAL — Cadastro ══ -->
+<div class="modal-ov" id="modal-cadastro">
+  <div class="modal">
+    <div class="m-header">
+      <div class="m-logo">
+        <img src="EveryHome_RGB_Symbol_White.jpg" alt="EveryHome" style="width:100%;height:100%;object-fit:contain;display:block">
+      </div>
+      <div class="m-htxt">
+        <span>Every Home Brasil</span>
+        <h2>Torne-se um Sentinela</h2>
+      </div>
+    </div>
+
+    <!-- Formulário -->
+    <div id="m-form">
+      <div class="sel-slot">
+        <div class="ss-icon">🕐</div>
+        <div class="ss-info">
+          <div class="ss-time" id="ss-time">Selecione um horário</div>
+          <div class="ss-sub">Bloco de 15 min · compromisso diário · renovação automática</div>
+        </div>
+        <button class="ss-chg" onclick="toggleMini()">Alterar</button>
+      </div>
+
+      <div class="mini-ov" id="mini-ov">
+        <div class="mini-lbl">Escolha outro horário</div>
+        <div class="mini-scr"><div id="mini-grid"></div></div>
+      </div>
+
+      <p class="m-sub">Preencha seus dados. Você assumirá um compromisso de orar diariamente neste horário específico.</p>
+
+      <div class="frow">
+        <div class="fg"><label>Nome *</label><input type="text" id="f-nome" placeholder="Seu nome" required></div>
+        <div class="fg"><label>Sobrenome *</label><input type="text" id="f-sobrenome" placeholder="Sobrenome" required></div>
+      </div>
+      <div class="fg"><label>E-mail *</label><input type="email" id="f-email" placeholder="seu@email.com" required></div>
+      <div class="fg">
+        <label>País *</label>
+        <input type="text" id="f-pais" placeholder="Digite seu país…" autocomplete="off" list="pais-list" required>
+        <datalist id="pais-list">
+          <option>Afeganistão</option><option>África do Sul</option><option>Albania</option>
+          <option>Alemanha</option><option>Andorra</option><option>Angola</option>
+          <option>Antígua e Barbuda</option><option>Arábia Saudita</option><option>Argentina</option>
+          <option>Armênia</option><option>Austrália</option><option>Áustria</option>
+          <option>Azerbaijão</option><option>Bahamas</option><option>Bangladesh</option>
+          <option>Barbados</option><option>Bélgica</option><option>Belize</option>
+          <option>Benin</option><option>Bielorrússia</option><option>Bolívia</option>
+          <option>Bósnia e Herzegovina</option><option>Botsuana</option><option>Brasil</option>
+          <option>Brunei</option><option>Bulgária</option><option>Burkina Faso</option>
+          <option>Burundi</option><option>Butão</option><option>Cabo Verde</option>
+          <option>Camarões</option><option>Camboja</option><option>Canadá</option>
+          <option>Cazaquistão</option><option>Chade</option><option>Chile</option>
+          <option>China</option><option>Chipre</option><option>Colômbia</option>
+          <option>Comores</option><option>Congo</option><option>Coreia do Norte</option>
+          <option>Coreia do Sul</option><option>Costa do Marfim</option><option>Costa Rica</option>
+          <option>Croácia</option><option>Cuba</option><option>Dinamarca</option>
+          <option>Djibuti</option><option>Dominica</option><option>Egito</option>
+          <option>El Salvador</option><option>Emirados Árabes Unidos</option><option>Equador</option>
+          <option>Eritreia</option><option>Eslováquia</option><option>Eslovênia</option>
+          <option>Espanha</option><option>Estado da Palestina</option><option>Estados Unidos</option>
+          <option>Estônia</option><option>Etiópia</option><option>Fiji</option>
+          <option>Filipinas</option><option>Finlândia</option><option>França</option>
+          <option>Gabão</option><option>Gâmbia</option><option>Gana</option>
+          <option>Geórgia</option><option>Granada</option><option>Grécia</option>
+          <option>Guatemala</option><option>Guiné</option><option>Guiné-Bissau</option>
+          <option>Guiné Equatorial</option><option>Guiana</option><option>Haiti</option>
+          <option>Honduras</option><option>Hungria</option><option>Iêmen</option>
+          <option>Índia</option><option>Indonésia</option><option>Irã</option>
+          <option>Iraque</option><option>Irlanda</option><option>Islândia</option>
+          <option>Israel</option><option>Itália</option><option>Jamaica</option>
+          <option>Japão</option><option>Jordânia</option><option>Kuwait</option>
+          <option>Laos</option><option>Lesoto</option><option>Letônia</option>
+          <option>Líbano</option><option>Libéria</option><option>Líbia</option>
+          <option>Liechtenstein</option><option>Lituânia</option><option>Luxemburgo</option>
+          <option>Macedônia do Norte</option><option>Madagascar</option><option>Malásia</option>
+          <option>Malawi</option><option>Maldivas</option><option>Mali</option>
+          <option>Malta</option><option>Marrocos</option><option>Maurício</option>
+          <option>Mauritânia</option><option>México</option><option>Moçambique</option>
+          <option>Moldova</option><option>Mônaco</option><option>Mongólia</option>
+          <option>Montenegro</option><option>Myanmar</option><option>Namíbia</option>
+          <option>Nepal</option><option>Nicarágua</option><option>Níger</option>
+          <option>Nigéria</option><option>Noruega</option><option>Nova Zelândia</option>
+          <option>Omã</option><option>Países Baixos</option><option>Paquistão</option>
+          <option>Palau</option><option>Panamá</option><option>Papua Nova Guiné</option>
+          <option>Paraguai</option><option>Peru</option><option>Polônia</option>
+          <option>Portugal</option><option>Qatar</option><option>Quênia</option>
+          <option>Quirguistão</option><option>Reino Unido</option><option>República Centro-Africana</option>
+          <option>República Dominicana</option><option>República Tcheca</option><option>Romênia</option>
+          <option>Ruanda</option><option>Rússia</option><option>Samoa</option>
+          <option>Santa Lúcia</option><option>São Tomé e Príncipe</option><option>Senegal</option>
+          <option>Serra Leoa</option><option>Sérvia</option><option>Singapura</option>
+          <option>Síria</option><option>Somália</option><option>Sri Lanka</option>
+          <option>Sudão</option><option>Sudão do Sul</option><option>Suécia</option>
+          <option>Suíça</option><option>Suriname</option><option>Tailândia</option>
+          <option>Tajiquistão</option><option>Tanzânia</option><option>Timor-Leste</option>
+          <option>Togo</option><option>Trinidad e Tobago</option><option>Tunísia</option>
+          <option>Turquia</option><option>Turcomenistão</option><option>Ucrânia</option>
+          <option>Uganda</option><option>Uruguai</option><option>Uzbequistão</option>
+          <option>Vanuatu</option><option>Venezuela</option><option>Vietnã</option>
+          <option>Zâmbia</option><option>Zimbábue</option>
+        </datalist>
+      </div>
+
+      <div class="commit">
+        <p>Ao confirmar, você assume o compromisso de orar <strong>diariamente</strong> neste horário de 15 minutos, contribuindo para a cobertura contínua de 24h de intercessão pelo mundo.</p>
+      </div>
+
+      <!-- Honeypot anti-bot: invisível para humanos, bots preenchem -->
+      <input type="text" id="f-hp" name="website" style="display:none" tabindex="-1" autocomplete="off">
+
+      <div class="m-footer">
+        <button class="btn-ok" id="btn-register" onclick="register()">Confirmar meu compromisso</button>
+        <div class="m-err" id="m-err" style="display:none">Não foi possível concluir o cadastro. Verifique sua conexão e tente novamente.</div>
+        <button class="btn-cl" onclick="closeModal('modal-cadastro')">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Sucesso -->
+    <div id="m-success" style="display:none">
+      <div class="suc-icon">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="30" fill="#4fa065"/>
+          <path d="M19 33l9 9 17-19" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="suc-title">Cadastro realizado</div>
+      <div class="suc-msg" id="suc-msg">Seja bem-vindo(a), Sentinela!<br>Sua jornada de oração e vigilância começa agora.</div>
+      <button class="btn-ok" style="width:100%;margin-top:22px" onclick="closeModal('modal-cadastro')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ POPUP — Pedidos ══ -->
+<div class="modal-ov" id="modal-pedidos">
+  <div class="popup">
+    <div class="pu-tag">Lista de pedidos · Junho 2026</div>
+    <div class="pu-h">📖 Pedidos de Oração</div>
+    <div class="pu-list">
+      <div class="pu-item">
+        <div class="pu-ih"><span class="pu-num">01</span><span class="pu-ctry">BRASIL</span></div>
+        <div class="pu-txt">Ore pela expansão do Evangelho em todo o Brasil. Clame por novos evangelistas e plantadores de igrejas nas cidades e comunidades rurais.</div>
+      </div>
+      <div class="pu-item">
+        <div class="pu-ih"><span class="pu-num">02</span><span class="pu-ctry">ANGOLA</span></div>
+        <div class="pu-txt">Interceda pela paz e pela reconciliação em Angola. Ore para que o Evangelho alcance aldeias remotas e que igrejas locais sejam fortalecidas.</div>
+      </div>
+      <div class="pu-item">
+        <div class="pu-ih"><span class="pu-num">03</span><span class="pu-ctry">ÍNDIA</span></div>
+        <div class="pu-txt">Ore pela proteção dos cristãos perseguidos na Índia. Peça sabedoria para os líderes e coragem para os que compartilham a fé em regiões fechadas.</div>
+      </div>
+      <div class="pu-item">
+        <div class="pu-ih"><span class="pu-num">04</span><span class="pu-ctry">CHINA</span></div>
+        <div class="pu-txt">Interceda pela Igreja na China — pelas igrejas domésticas e por crentes que enfrentam restrições. Ore para que a Palavra continue a se espalhar.</div>
+      </div>
+      <div class="pu-item">
+        <div class="pu-ih"><span class="pu-num">05</span><span class="pu-ctry">ORIENTE MÉDIO</span></div>
+        <div class="pu-txt">Ore pelos povos do Oriente Médio que ainda não ouviram o Evangelho. Peça abertura de corações e pelo trabalho de obreiros locais e internacionais.</div>
+      </div>
+      <div class="pu-item">
+        <div class="pu-ih"><span class="pu-num">06</span><span class="pu-ctry">PORTUGAL</span></div>
+        <div class="pu-txt">Interceda por um reavivamento espiritual em Portugal. Ore por igrejas que evangelizem ativamente e por jovens que se levantem para servir ao Senhor.</div>
+      </div>
+    </div>
+    <button class="pu-close" onclick="closeModal('modal-pedidos')">Fechar</button>
+  </div>
+</div>
+
+<div class="blk-tip" id="blk-tip">
+  <div class="bt-time" id="bt-time"></div>
+  <div class="bt-count" id="bt-count"></div>
+  <div id="bt-body"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+/* ── Supabase ── */
+const SB = supabase.createClient(
+  'https://fdcihrxozxmggjrljueh.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkY2locnhvenhtZ2dqcmxqdWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MDM0NjgsImV4cCI6MjA5NzA3OTQ2OH0.gPc0ZDatsaLvuZYlRzMUPn-DhurN0La35dGM-ZATy3g'
+);
+
+const NAMES = [
+  'Maria S.','João P.','Ana L.','Carlos M.','Fernanda R.',
+  'Paulo A.','Lúcia C.','Roberto F.','Gustavo N.','Beatriz O.',
+  'Sofia M.','André B.','Grace M.','Michael J.','Sarah L.',
+  'David W.','Emma K.','Pierre D.','Emmanuel A.','Ruth W.',
+  'Li Wei','Priya K.','Kim J.','Hana S.','James O.',
+  'Isabella G.','Diego R.','Carmen L.','Miriam Y.','Nikolai B.',
+];
+
+/* A muralha segue o horário de Brasília para todos os visitantes */
+function brTime(){
+  const p = new Intl.DateTimeFormat('pt-BR', { timeZone:'America/Sao_Paulo', hour:'2-digit', minute:'2-digit', hour12:false }).formatToParts(new Date());
+  const get = t => +p.find(x=>x.type===t).value;
+  return { h: get('hour')%24, m: get('minute') };
+}
+const _br = brTime();
+const CUR = Math.floor(_br.h * 4 + _br.m / 15);
+
+const COUNTS = new Array(96).fill(0);
+
+/* Estilos dos blocos — Poucos 1–5/9, Vários 10–50, Muitos 50+ */
+function pbStyle(count, isCur) {
+  if (isCur)        return { bg:'#1e5631', tc:'#fff', icon:'#fff', cc:'#fff', now:true };
+  if (count === 0)  return { bg:'#fff',    tc:'#222', icon:'#d98c8c', cc:'#c96b6b', empty:true };
+  if (count <= 9)   return { bg:'#e7f3ea', tc:'#222', icon:'#2e7d4f', cc:'#2e7d4f' };
+  if (count <= 50)  return { bg:'#c4e3cd', tc:'#222', icon:'#1e6038', cc:'#1e6038' };
+  return              { bg:'#1e5631', tc:'#fff', icon:'#fff', cc:'#fff' };
+}
+
+function personIcon(color, outline){
+  return outline
+    ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>`
+    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="${color}"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8v1H4z"/></svg>`;
+}
+
+function bTime(i){ return String(~~(i/4)).padStart(2,'0')+':'+String((i%4)*15).padStart(2,'0'); }
+function bEnd(i) { return i<95?bTime(i+1):'00:00'; }
+function rNames(n){
+  const sh=[...NAMES].sort(()=>Math.random()-.5);
+  if(n<=3) return sh.slice(0,n).join(', ');
+  return sh.slice(0,3).join(', ')+` e mais ${n-3}`;
+}
+
+/* Períodos da muralha — abas */
+const WALL_PERIODS = [
+  { name:'Madrugada', icon:'🌙', range:'00h – 06h', start:0  },
+  { name:'Manhã',     icon:'☀️', range:'06h – 12h', start:24 },
+  { name:'Tarde',     icon:'🔆', range:'12h – 18h', start:48 },
+  { name:'Noite',     icon:'🌙', range:'18h – 24h', start:72 },
+];
+let activePeriod = Math.floor(CUR / 24);
+
+/* Compromisso salvo no navegador do visitante (sem login) */
+function myCommit(){
+  try { return JSON.parse(localStorage.getItem('sentinela-compromisso')); } catch(e){ return null; }
+}
+function saveCommit(idx, nome){
+  try { localStorage.setItem('sentinela-compromisso', JSON.stringify({ idx, nome })); } catch(e){}
+}
+
+const CAN_HOVER = window.matchMedia('(hover: hover)').matches;
+
+function makeBlock(idx){
+  const count = COUNTS[idx];
+  const isCur = idx===CUR;
+  const s     = pbStyle(count,isCur);
+  const mine  = myCommit();
+  const isMine = mine && mine.idx === idx;
+
+  const b = document.createElement('div');
+  b.className = 'wb' + (isCur?' is-now':'') + (isMine?' is-mine':'');
+  b.style.background = s.bg;
+  if (s.empty) b.style.border = '1.5px solid #ecc7c7';
+
+  b.innerHTML = s.empty
+    ? `
+    ${isMine?'<span class="voce-tag">VOCÊ</span>':''}
+    <div class="wb-time">${bTime(idx)}</div>
+    <div class="wb-mid">${personIcon(s.icon, true)}</div>
+    `
+    : `
+    ${isMine?'<span class="voce-tag">VOCÊ</span>':(isCur?'<span class="agora-tag">AGORA</span>':'')}
+    <div class="wb-time" style="color:${s.tc}">${bTime(idx)}</div>
+    <div class="wb-mid">
+      ${personIcon(s.icon)}
+      <span class="wb-count" style="color:${s.cc}">${count}</span>
+    </div>
+    ${isCur?'<div class="wb-lbl" style="color:rgba(255,255,255,.85)">orando</div>':''}
+    `;
+
+  b.addEventListener('click', ()=> openModal(idx));
+  if (CAN_HOVER) {
+    b.addEventListener('mouseenter', e => showTip(e,idx));
+    b.addEventListener('mousemove',  e => moveTip(e));
+    b.addEventListener('mouseleave',    hideTip);
+  }
+  return b;
+}
+
+function buildTabs(){
+  const tabs = document.getElementById('wall-tabs');
+  tabs.innerHTML = '';
+
+  WALL_PERIODS.forEach((p, pi)=>{
+    const t = document.createElement('button');
+    t.className = 'wtab' + (pi===activePeriod?' active':'');
+    t.innerHTML = `
+      <span class="ic">${p.icon}</span>
+      <span><div class="nm">${p.name}</div><div class="rg">${p.range}</div></span>
+    `;
+    t.addEventListener('click', ()=>{ activePeriod = pi; buildWall(); });
+    tabs.appendChild(t);
+  });
+}
+
+function buildWall(){
+  buildTabs();
+  const area = document.getElementById('blocks-area');
+  area.innerHTML = '';
+  const start = WALL_PERIODS[activePeriod].start;
+  for(let k=0; k<24; k++){
+    area.appendChild(makeBlock(start + k));
+  }
+  updateStats();
+}
+
+function updateStats(){
+  const covered = COUNTS.filter(c=>c>0).length;
+  const pct     = Math.round((covered/96)*100);
+  document.getElementById('sb-covered').textContent = covered;
+  document.getElementById('sb-pct').textContent     = pct+'%';
+  document.getElementById('cnt-now').textContent    = COUNTS[CUR];
+  document.getElementById('pc-day').textContent     = new Date().getDate();
+}
+
+const tip = document.getElementById('blk-tip');
+function showTip(e,i){
+  const c = COUNTS[i];
+  document.getElementById('bt-time').textContent  = `${bTime(i)} – ${bEnd(i)}`;
+  document.getElementById('bt-count').textContent = c===0 ? '' : (c===1 ? '1 pessoa orando' : `${c} pessoas orando`);
+  document.getElementById('bt-body').innerHTML = c===0
+    ? `<div class="bt-empty">Nenhum sentinela ainda.<br>Seja o primeiro!</div>`
+    : `<div class="bt-names">${rNames(c)}</div>`;
+  tip.classList.add('show'); moveTip(e);
+}
+function moveTip(e){ tip.style.left=(e.clientX+12)+'px'; tip.style.top=(e.clientY-8)+'px'; }
+function hideTip(){ tip.classList.remove('show'); }
+
+let selIdx = CUR;
+
+function openModal(idx){
+  if(idx!==null) selIdx=idx;
+  document.getElementById('ss-time').textContent = `${bTime(selIdx)} – ${bEnd(selIdx)} (diariamente)`;
+  buildMini();
+  document.getElementById('modal-cadastro').classList.add('open');
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  if(id==='modal-cadastro'){
+    document.getElementById('mini-ov').classList.remove('open');
+    // volta ao formulário para o próximo uso
+    document.getElementById('m-form').style.display = '';
+    document.getElementById('m-success').style.display = 'none';
+  }
+}
+document.querySelectorAll('.modal-ov').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
+});
+
+function toggleMini(){ document.getElementById('mini-ov').classList.toggle('open'); }
+
+function buildMini(){
+  const g = document.getElementById('mini-grid');
+  g.innerHTML='';
+  const PERIODS=[{n:'🌙 Madrugada',s:0},{n:'🌅 Manhã',s:24},{n:'☀️ Tarde',s:48},{n:'🌇 Noite',s:72}];
+  PERIODS.forEach(p=>{
+    const pd=document.createElement('div'); pd.className='mini-period';
+    pd.innerHTML=`<div class="mini-pname">${p.n}</div><div class="mini-grid" id="mg${p.s}"></div>`;
+    g.appendChild(pd);
+    const mg=pd.querySelector(`#mg${p.s}`);
+    for(let i=p.s;i<p.s+24;i++){
+      const mb=document.createElement('div');
+      mb.className='mini-b'+(i===selIdx?' sel':'');
+      mb.textContent=bTime(i);
+      mb.addEventListener('click',()=>{
+        document.querySelectorAll('.mini-b').forEach(b=>b.classList.remove('sel'));
+        mb.classList.add('sel'); selIdx=i;
+        document.getElementById('ss-time').textContent=`${bTime(i)} – ${bEnd(i)} (diariamente)`;
+        document.getElementById('mini-ov').classList.remove('open');
+      });
+      mg.appendChild(mb);
+    }
+  });
+}
+
+async function register(){
+  const req = ['f-nome','f-sobrenome','f-email','f-pais'];
+  let ok = true;
+  req.forEach(id=>{
+    const el = document.getElementById(id);
+    const empty = !el.value.trim();
+    el.classList.toggle('f-err', empty);
+    if(empty) ok = false;
+  });
+  const emailEl = document.getElementById('f-email');
+  if(emailEl.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())){
+    emailEl.classList.add('f-err'); ok = false;
+  }
+  if(!ok) return;
+
+  const btn = document.getElementById('btn-register');
+  const errEl = document.getElementById('m-err');
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Enviando…';
+
+  const nome     = document.getElementById('f-nome').value.trim();
+  const sobrenome= document.getElementById('f-sobrenome').value.trim();
+  const email    = emailEl.value.trim();
+  const pais     = document.getElementById('f-pais').value.trim();
+
+  /* Honeypot anti-bot: campo oculto não deve estar preenchido */
+  if(document.getElementById('f-hp') && document.getElementById('f-hp').value){
+    btn.disabled = false; btn.textContent = 'Confirmar meu compromisso'; return;
+  }
+
+  const { error } = await SB.from('sentinelas').insert({
+    nome, sobrenome, email, pais, bloco: selIdx
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Confirmar meu compromisso';
+
+  if(error){
+    if(error.code === '23505'){
+      errEl.textContent = 'Você já é sentinela deste horário! Escolha outro bloco ou use um e-mail diferente.';
+    } else {
+      errEl.textContent = 'Não foi possível concluir o cadastro. Verifique sua conexão e tente novamente.';
+    }
+    errEl.style.display = 'block';
+    return;
+  }
+
+  saveCommit(selIdx, nome);
+  COUNTS[selIdx]++;
+  activePeriod = Math.floor(selIdx / 24);
+  buildWall();
+  await loadStats();
+
+  document.getElementById('suc-msg').innerHTML = `Seja bem-vindo(a), Sentinela <strong>${nome} ${sobrenome}</strong>!<br>Sua jornada de oração e vigilância começa agora.`;
+  document.getElementById('m-form').style.display = 'none';
+  document.getElementById('m-success').style.display = 'block';
+}
+
+function openPrayerPopup(){ document.getElementById('modal-pedidos').classList.add('open'); }
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),4500);
+}
+
+async function loadCounts(){
+  const { data, error } = await SB.rpc('get_block_counts');
+  if(!error && data) data.forEach(r => { COUNTS[r.bloco] = Number(r.total); });
+}
+
+async function loadStats(){
+  const { data, error } = await SB.rpc('get_stats');
+  if(!error && data){
+    const d = typeof data === 'string' ? JSON.parse(data) : data;
+    const sentEl  = document.querySelector('.cbox:nth-child(2) .num');
+    const paisEl  = document.querySelector('.cbox.hm .num');
+    const nowEl   = document.getElementById('cnt-now');
+    if(sentEl) sentEl.textContent = (d.total_sentinelas||0).toLocaleString('pt-BR');
+    if(paisEl) paisEl.textContent = d.total_paises||0;
+    if(nowEl)  nowEl.textContent  = COUNTS[CUR]||0;
+  }
+}
+
+async function init(){
+  await loadCounts();
+  buildWall();
+  await loadStats();
+
+  /* Atualiza contagens a cada 30s em tempo real */
+  setInterval(async ()=>{
+    await loadCounts();
+    buildWall();
+    await loadStats();
+  }, 30000);
+}
+
+init();
+</script>
+</body>
+</html>
