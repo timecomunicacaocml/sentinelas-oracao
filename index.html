@@ -383,23 +383,6 @@
   }
   .btn-sentinel:hover { background: #3d8052; transform: translateY(-1px); box-shadow: 0 6px 22px rgba(0,0,0,.35); }
 
-  /* ══ TOOLTIP ══ */
-  .blk-tip {
-    position: fixed; background: #fff;
-    border: 1px solid rgba(48,84,72,.15);
-    border-radius: 8px; padding: 9px 13px;
-    font-size: 10.5px; z-index: 8000;
-    pointer-events: none; opacity: 0;
-    transition: opacity .1s;
-    max-width: 185px; line-height: 1.5;
-    box-shadow: 0 6px 20px rgba(0,0,0,.18);
-    color: #2a2a2a;
-  }
-  .blk-tip.show { opacity: 1; }
-  .bt-time  { font-size: 12px; font-weight: 800; color: var(--gd); margin-bottom: 3px; }
-  .bt-count { font-size: 10.5px; font-weight: 700; color: var(--gm); margin-bottom: 3px; }
-  .bt-names { color: rgba(42,42,42,.55); }
-  .bt-empty { color: var(--gm); font-style: italic; }
 
   /* ══ MODAL — CADASTRO ══ */
   .modal-ov {
@@ -645,8 +628,8 @@
   <div class="header-right">
     <div class="counters">
       <div class="cbox live"><div class="num" id="cnt-now">—</div><div class="lbl">Orando Agora</div></div>
-      <div class="cbox"><div class="num">1.284</div><div class="lbl">Sentinelas</div></div>
-      <div class="cbox hm"><div class="num">38</div><div class="lbl">Países</div></div>
+      <div class="cbox"><div class="num" id="cnt-sentinelas">—</div><div class="lbl">Sentinelas</div></div>
+      <div class="cbox hm"><div class="num" id="cnt-paises">—</div><div class="lbl">Países</div></div>
     </div>
     <div class="pill-row">
       <div class="sb-pill">
@@ -967,11 +950,6 @@
   </div>
 </div>
 
-<div class="blk-tip" id="blk-tip">
-  <div class="bt-time" id="bt-time"></div>
-  <div class="bt-count" id="bt-count"></div>
-  <div id="bt-body"></div>
-</div>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -982,14 +960,6 @@ const SB = supabase.createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkY2locnhvenhtZ2dqcmxqdWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MDM0NjgsImV4cCI6MjA5NzA3OTQ2OH0.gPc0ZDatsaLvuZYlRzMUPn-DhurN0La35dGM-ZATy3g'
 );
 
-const NAMES = [
-  'Maria S.','João P.','Ana L.','Carlos M.','Fernanda R.',
-  'Paulo A.','Lúcia C.','Roberto F.','Gustavo N.','Beatriz O.',
-  'Sofia M.','André B.','Grace M.','Michael J.','Sarah L.',
-  'David W.','Emma K.','Pierre D.','Emmanuel A.','Ruth W.',
-  'Li Wei','Priya K.','Kim J.','Hana S.','James O.',
-  'Isabella G.','Diego R.','Carmen L.','Miriam Y.','Nikolai B.',
-];
 
 /* A muralha segue o horário de Brasília para todos os visitantes */
 function brTime(){
@@ -1019,11 +989,6 @@ function personIcon(color, outline){
 
 function bTime(i){ return String(~~(i/4)).padStart(2,'0')+':'+String((i%4)*15).padStart(2,'0'); }
 function bEnd(i) { return i<95?bTime(i+1):'00:00'; }
-function rNames(n){
-  const sh=[...NAMES].sort(()=>Math.random()-.5);
-  if(n<=3) return sh.slice(0,n).join(', ');
-  return sh.slice(0,3).join(', ')+` e mais ${n-3}`;
-}
 
 /* Períodos da muralha — abas */
 const WALL_PERIODS = [
@@ -1042,7 +1007,6 @@ function saveCommit(idx, nome){
   try { localStorage.setItem('sentinela-compromisso', JSON.stringify({ idx, nome })); } catch(e){}
 }
 
-const CAN_HOVER = window.matchMedia('(hover: hover)').matches;
 
 function makeBlock(idx){
   const count = COUNTS[idx];
@@ -1073,11 +1037,6 @@ function makeBlock(idx){
     `;
 
   b.addEventListener('click', ()=> openModal(idx));
-  if (CAN_HOVER) {
-    b.addEventListener('mouseenter', e => showTip(e,idx));
-    b.addEventListener('mousemove',  e => moveTip(e));
-    b.addEventListener('mouseleave',    hideTip);
-  }
   return b;
 }
 
@@ -1117,18 +1076,6 @@ function updateStats(){
   document.getElementById('pc-day').textContent     = new Date().getDate();
 }
 
-const tip = document.getElementById('blk-tip');
-function showTip(e,i){
-  const c = COUNTS[i];
-  document.getElementById('bt-time').textContent  = `${bTime(i)} – ${bEnd(i)}`;
-  document.getElementById('bt-count').textContent = c===0 ? '' : (c===1 ? '1 pessoa orando' : `${c} pessoas orando`);
-  document.getElementById('bt-body').innerHTML = c===0
-    ? `<div class="bt-empty">Nenhum sentinela ainda.<br>Seja o primeiro!</div>`
-    : `<div class="bt-names">${rNames(c)}</div>`;
-  tip.classList.add('show'); moveTip(e);
-}
-function moveTip(e){ tip.style.left=(e.clientX+12)+'px'; tip.style.top=(e.clientY-8)+'px'; }
-function hideTip(){ tip.classList.remove('show'); }
 
 let selIdx = CUR;
 
@@ -1253,12 +1200,9 @@ async function loadStats(){
   const { data, error } = await SB.rpc('get_stats');
   if(!error && data){
     const d = typeof data === 'string' ? JSON.parse(data) : data;
-    const sentEl  = document.querySelector('.cbox:nth-child(2) .num');
-    const paisEl  = document.querySelector('.cbox.hm .num');
-    const nowEl   = document.getElementById('cnt-now');
-    if(sentEl) sentEl.textContent = (d.total_sentinelas||0).toLocaleString('pt-BR');
-    if(paisEl) paisEl.textContent = d.total_paises||0;
-    if(nowEl)  nowEl.textContent  = COUNTS[CUR]||0;
+    document.getElementById('cnt-sentinelas').textContent = (d.total_sentinelas||0).toLocaleString('pt-BR');
+    document.getElementById('cnt-paises').textContent     = d.total_paises||0;
+    document.getElementById('cnt-now').textContent        = COUNTS[CUR]||0;
   }
 }
 
