@@ -1322,7 +1322,7 @@ const WP_API = 'https://everyhome.org.br/wp-json/sentinelas/v1';
 async function loadWordPressData(){
   try {
     // MOD — Momento de Oração Diário
-    const modRes = await fetch(WP_API + '/mod');
+    const modRes = await fetch(WP_API + '/mod', { cache: 'no-store' });
     if(modRes.ok){
       const mod = await modRes.json();
       if(mod.pais)  document.getElementById('pc-country').textContent = mod.pais.toUpperCase();
@@ -1333,7 +1333,7 @@ async function loadWordPressData(){
 
   try {
     // Pedidos de Oração
-    const pedRes = await fetch(WP_API + '/pedidos');
+    const pedRes = await fetch(WP_API + '/pedidos', { cache: 'no-store' });
     if(pedRes.ok){
       const pedidos = await pedRes.json();
       if(pedidos && pedidos.length){
