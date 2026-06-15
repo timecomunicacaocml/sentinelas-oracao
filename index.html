@@ -568,35 +568,63 @@
   @media (max-width: 900px) {
     html, body { overflow: auto; height: auto; }
     .main { flex-direction: column; overflow: visible; }
-    .wall-panel { flex: none; height: 480px; }
+    .wall-panel { flex: none; height: auto; min-height: 0; }
+    .right-panel { min-height: 0; }
     .footer { flex-direction: column; gap: 18px; }
-    .footer-left { flex: none; width: 100%; }
     .footer-right { text-align: center; }
     .header { flex-direction: column; align-items: flex-start; gap: 14px; }
     .header-right { align-items: flex-start; width: 100%; }
+    .how-bar { flex-direction: column; gap: 14px; }
+    .how-bar .btn-sentinel { width: 100%; }
   }
   @media (max-width: 640px) {
     .header { padding: 14px 16px; }
-    .logo-img { height: 44px; }
-    .logo-text h1 { font-size: 19px; }
-    .logo-text p  { font-size: 10px; }
+    .logo-img { height: 40px; }
+    .logo-text h1 { font-size: 17px; }
+    .logo-text p  { font-size: 9px; }
     .counters { width: 100%; }
-    .cbox { min-width: 0; flex: 1; padding: 8px 10px; }
-    .cbox .num { font-size: 24px; }
+    .cbox { min-width: 0; flex: 1; padding: 8px 8px; }
+    .cbox .num { font-size: 22px; }
     .cbox .lbl { font-size: 8px; }
-    .pill-row { width: 100%; }
-    .sb-pill { flex: 1; }
-    .sb-txt { font-size: 10px; }
-    .main { padding: 14px 14px 0; gap: 14px; }
-    .right-panel { padding: 20px 16px; }
-    .res-grid { gap: 10px; padding: 0; }
-    .res-btn { padding: 10px 16px; font-size: 12px; }
-    .modal-ov { align-items: flex-end; }
-    .modal { border-radius: 18px 18px 0 0; padding: 22px 16px 28px; max-height: 90vh; }
+    .pill-row { width: 100%; flex-wrap: wrap; gap: 6px; }
+    .sb-pill { flex: 1; min-width: 0; }
+    .sb-txt { font-size: 9px; }
+    .sb-pct { font-size: 14px; }
+    .main { padding: 12px 12px 0; gap: 12px; }
+    .wall-panel { padding: 0 0 12px; }
+    .wall-tabs { gap: 6px; padding: 0 12px; }
+    .wtab { padding: 8px 10px; gap: 6px; }
+    .wtab .nm { font-size: 11px; }
+    .wtab .rg { font-size: 9px; }
+    .wtab .ic { font-size: 14px; }
+    .blocks-area { grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 12px; }
+    .wb { min-height: 72px; padding: 7px 2px; gap: 5px; border-radius: 9px; }
+    .wb-time { font-size: 10px; }
+    .wb-count { font-size: 11px; }
+    .agora-tag, .voce-tag { font-size: 8px; padding: 2px 7px; top: -9px; }
+    .wall-legend2 { padding: 0 12px; gap: 8px; flex-wrap: wrap; }
+    .how-bar { margin: 10px 12px 16px; padding: 14px 16px; gap: 12px; }
+    .how-logo { height: 40px; }
+    .how-t { font-size: 13px; }
+    .how-s { font-size: 12px; }
+    .btn-sentinel { font-size: 11px; padding: 10px 16px; }
+    .right-panel { padding: 16px 14px; gap: 16px; border-radius: 18px; }
+    .res-grid { gap: 8px; padding: 0; }
+    .res-cover { min-height: 90px; }
+    .res-btn { padding: 9px 14px; font-size: 11px; }
+    .modal-ov { align-items: flex-end; padding: 0; }
+    .modal { border-radius: 20px 20px 0 0; padding: 20px 16px 32px; max-height: 92vh; width: 100%; max-width: 100%; }
+    .m-header { gap: 10px; margin-bottom: 14px; }
+    .m-logo img { width: 36px; height: 36px; }
+    .m-htxt span { font-size: 10px; }
+    .m-htxt h2 { font-size: 17px; }
     .frow { grid-template-columns: 1fr; gap: 0; }
-    .fg input, .fg select { font-size: 16px; }
+    .fg input { font-size: 16px; }
     .m-footer { flex-direction: column; gap: 8px; }
-    .mini-grid { grid-template-columns: repeat(6,1fr); }
+    .mini-grid { grid-template-columns: repeat(6, 1fr); }
+    .footer { padding: 16px 14px 20px; }
+    .fr-title { font-size: 12px; }
+    .fr-sub { font-size: 9px; }
   }
 </style>
 </head>
@@ -1150,35 +1178,42 @@ async function register(){
   const email    = emailEl.value.trim();
   const pais     = document.getElementById('f-pais').value.trim();
 
-  /* Honeypot anti-bot: campo oculto não deve estar preenchido */
+  /* Honeypot anti-bot */
   if(document.getElementById('f-hp') && document.getElementById('f-hp').value){
     btn.disabled = false; btn.textContent = 'Confirmar meu compromisso'; return;
   }
 
-  const { error } = await SB.from('sentinelas').insert({
-    nome, sobrenome, email, pais, bloco: selIdx
+  /* Chama função segura no Supabase — lida com insert ou update */
+  const { data: res, error } = await SB.rpc('register_sentinela', {
+    p_nome: nome, p_sobrenome: sobrenome, p_email: email, p_pais: pais, p_bloco: selIdx
   });
 
   btn.disabled = false;
   btn.textContent = 'Confirmar meu compromisso';
 
   if(error){
-    if(error.code === '23505'){
-      errEl.textContent = 'Você já é sentinela deste horário! Escolha outro bloco ou use um e-mail diferente.';
-    } else {
-      errEl.textContent = 'Não foi possível concluir o cadastro. Verifique sua conexão e tente novamente.';
-    }
+    errEl.textContent = 'Não foi possível concluir o cadastro. Verifique sua conexão e tente novamente.';
     errEl.style.display = 'block';
     return;
   }
 
+  const isUpdate = res?.is_update;
+  const oldBloco = res?.old_bloco;
+
+  /* Atualiza contagens locais */
+  if(isUpdate && oldBloco !== selIdx && COUNTS[oldBloco] > 0) COUNTS[oldBloco]--;
+  if(!isUpdate || oldBloco !== selIdx) COUNTS[selIdx]++;
+
   saveCommit(selIdx, nome);
-  COUNTS[selIdx]++;
   activePeriod = Math.floor(selIdx / 24);
   buildWall();
   await loadStats();
 
-  document.getElementById('suc-msg').innerHTML = `Seja bem-vindo(a), Sentinela <strong>${nome} ${sobrenome}</strong>!<br>Sua jornada de oração e vigilância começa agora.`;
+  const msgHorario = `${bTime(selIdx)} – ${bEnd(selIdx)}`;
+  document.getElementById('suc-msg').innerHTML = isUpdate && oldBloco !== selIdx
+    ? `Seu horário foi alterado para <strong>${msgHorario}</strong>!<br>Continue fiel na oração, Sentinela <strong>${nome}</strong>.`
+    : `Seja bem-vindo(a), Sentinela <strong>${nome} ${sobrenome}</strong>!<br>Sua jornada de oração e vigilância começa agora.`;
+
   document.getElementById('m-form').style.display = 'none';
   document.getElementById('m-success').style.display = 'block';
 }
@@ -1206,17 +1241,39 @@ async function loadStats(){
   }
 }
 
+/* ── postMessage: comunica altura ao WordPress pai ── */
+function notifyHeight(){
+  const h = document.body.scrollHeight;
+  if(window.parent !== window){
+    window.parent.postMessage({ type:'sentinelas-height', height: h }, '*');
+  }
+}
+
 async function init(){
   await loadCounts();
   buildWall();
   await loadStats();
+  notifyHeight();
 
-  /* Atualiza contagens a cada 30s em tempo real */
+  /* Realtime: atualiza ao vivo quando qualquer pessoa se cadastra */
+  SB.channel('sentinelas-realtime')
+    .on('postgres_changes', { event:'*', schema:'public', table:'sentinelas' }, async ()=>{
+      await loadCounts();
+      buildWall();
+      await loadStats();
+      notifyHeight();
+    })
+    .subscribe();
+
+  /* Fallback: re-checagem a cada 60s caso Realtime caia */
   setInterval(async ()=>{
     await loadCounts();
     buildWall();
     await loadStats();
-  }, 30000);
+  }, 60000);
+
+  /* Notifica altura ao redimensionar (ex: girar celular) */
+  window.addEventListener('resize', notifyHeight);
 }
 
 init();
