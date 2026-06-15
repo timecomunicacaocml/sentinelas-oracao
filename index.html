@@ -602,28 +602,62 @@
     .sb-pct { font-size: 14px; }
     .main { padding: 12px 12px 0; gap: 12px; }
     .wall-panel { padding: 0 0 12px; }
-    .wall-tabs { gap: 6px; padding: 0 12px; }
-    .wtab { padding: 8px 10px; gap: 6px; }
-    .wtab .nm { font-size: 11px; }
-    .wtab .rg { font-size: 9px; }
-    .wtab .ic { font-size: 14px; }
-    .blocks-area { grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 12px; }
+    /* Abas de período — centralizadas, clicáveis visualmente */
+    .wall-tabs {
+      gap: 4px; padding: 8px 12px;
+      justify-content: center;
+    }
+    .wtab {
+      flex: 1; padding: 10px 6px; gap: 5px;
+      justify-content: center; text-align: center;
+      background: rgba(0,0,0,.04);
+      border-radius: 10px;
+      border: 1.5px solid rgba(0,0,0,.07);
+      transition: background .15s;
+    }
+    .wtab.active {
+      background: rgba(46,125,79,.10);
+      border-color: rgba(46,125,79,.25);
+    }
+    .wtab.active::after { display: none; }
+    .wtab .nm { font-size: 11px; text-align: center; }
+    .wtab .rg { font-size: 9px; text-align: center; }
+    .wtab .ic { font-size: 15px; }
+
+    /* Grade de blocos */
+    .blocks-area { grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 10px 12px 0; }
     .wb { min-height: 72px; padding: 7px 2px; gap: 5px; border-radius: 9px; }
-    .wb-time { font-size: 10px; }
+    .wb-time { font-size: 10px; text-align: center; }
     .wb-count { font-size: 11px; }
     .agora-tag, .voce-tag { font-size: 8px; padding: 2px 7px; top: -9px; }
-    .wall-legend2 { padding: 0 12px; gap: 8px; flex-wrap: wrap; }
+
+    /* Legenda — centralizada com respiro */
+    .wall-legend2 {
+      padding: 12px 16px 6px;
+      gap: 12px; justify-content: center;
+    }
+    .lg2 .t { font-size: 12px; }
+    .lg2 .s { font-size: 11px; }
+
+    /* Como funciona */
     .how-bar { margin: 10px 12px 16px; padding: 14px 16px; gap: 12px; }
-    .how-logo { height: 40px; }
-    .how-t { font-size: 13px; }
-    .how-s { font-size: 12px; }
-    .btn-sentinel { font-size: 11px; padding: 10px 16px; }
+    .how-logo { height: 36px; }
+    .how-t { font-size: 12px; }
+    .how-s { font-size: 11px; }
+    .btn-sentinel { font-size: 11px; padding: 10px 14px; }
+
+    /* Painel direito */
     .right-panel { padding: 16px 14px; gap: 16px; border-radius: 18px; }
     .res-grid { gap: 8px; padding: 0; }
     .res-cover { min-height: 90px; }
     .res-btn { padding: 9px 14px; font-size: 11px; }
-    .modal-ov { align-items: flex-end; padding: 0; }
-    .modal { border-radius: 20px 20px 0 0; padding: 20px 16px 32px; max-height: 92vh; width: 100%; max-width: 100%; }
+
+    /* Modal — centralizado na tela, não na base */
+    .modal-ov { align-items: center; padding: 16px; }
+    .modal {
+      border-radius: 18px; padding: 20px 16px 28px;
+      max-height: 88vh; width: 100%; max-width: 100%;
+    }
     .m-header { gap: 10px; margin-bottom: 14px; }
     .m-logo img { width: 36px; height: 36px; }
     .m-htxt span { font-size: 10px; }
@@ -632,9 +666,11 @@
     .fg input { font-size: 16px; }
     .m-footer { flex-direction: column; gap: 8px; }
     .mini-grid { grid-template-columns: repeat(6, 1fr); }
+
+    /* Rodapé */
     .footer { padding: 16px 14px 20px; }
-    .fr-title { font-size: 12px; }
-    .fr-sub { font-size: 9px; }
+    .fr-title { font-size: 12px; text-align: center; }
+    .fr-sub { font-size: 9px; text-align: center; }
   }
 </style>
 </head>
