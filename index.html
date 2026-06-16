@@ -114,6 +114,7 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    overflow-x: hidden;
     min-width: 0;
     color: #2a282b;
   }
@@ -155,9 +156,10 @@
   .blocks-area {
     padding: 26px 30px 8px;
     display: grid;
-    grid-template-columns: repeat(13, 1fr);
+    grid-template-columns: repeat(12, 1fr);
     gap: 13px;
     flex-shrink: 0;
+    overflow-x: hidden;
   }
 
   .wb {
@@ -578,7 +580,7 @@
     .footer { padding: 26px 56px 30px; }
     .cbox { min-width: 150px; padding: 16px 30px; }
     .cbox .num { font-size: 48px; }
-    .blocks-area { gap: 16px; padding: 32px 36px 10px; }
+    .blocks-area { grid-template-columns: repeat(12, 1fr); gap: 16px; padding: 32px 36px 10px; }
     .wb { min-height: 110px; gap: 11px; }
     .wb-time { font-size: 15px; }
     .wb-count { font-size: 19px; }
@@ -594,7 +596,7 @@
     .logo-text h1 { font-size: 26px; }
     .cbox { min-width: 110px; padding: 11px 20px; }
     .cbox .num { font-size: 36px; }
-    .blocks-area { grid-template-columns: repeat(13, 1fr); gap: 10px; padding: 22px 24px 6px; }
+    .blocks-area { grid-template-columns: repeat(12, 1fr); gap: 10px; padding: 22px 24px 6px; }
     .wb { min-height: 90px; padding: 8px 3px; }
     .wb-time { font-size: 12px; }
     .wb-count { font-size: 15px; }
