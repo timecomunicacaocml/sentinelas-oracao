@@ -32,6 +32,9 @@
     display: flex;
     flex-direction: column;
     flex: 1;
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
   }
 
   /* ══ HEADER ══ */
@@ -563,6 +566,46 @@
     white-space: nowrap; pointer-events: none;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ══ TELAS GRANDES (>1600px) — centraliza com fundo cheio ══ */
+  @media (min-width: 1601px) {
+    body { align-items: center; }
+    #app-wrap { border-radius: 0; }
+    .header { padding: 30px 56px; }
+    .main   { padding: 36px 56px 0; gap: 32px; }
+    .footer { padding: 26px 56px 30px; }
+    .cbox { min-width: 150px; padding: 16px 30px; }
+    .cbox .num { font-size: 48px; }
+    .blocks-area { gap: 16px; padding: 32px 36px 10px; }
+    .wb { min-height: 110px; gap: 11px; }
+    .wb-time { font-size: 15px; }
+    .wb-count { font-size: 19px; }
+    .right-panel { padding: 32px 36px 30px; }
+  }
+
+  /* ══ TELAS MÉDIAS (1200–1440px) ══ */
+  @media (max-width: 1440px) and (min-width: 1101px) {
+    .header { padding: 20px 32px; }
+    .main   { padding: 22px 32px 0; gap: 20px; }
+    .footer { padding: 18px 32px 22px; }
+    .logo-img { height: 60px; }
+    .logo-text h1 { font-size: 26px; }
+    .cbox { min-width: 110px; padding: 11px 20px; }
+    .cbox .num { font-size: 36px; }
+    .blocks-area { grid-template-columns: repeat(13, 1fr); gap: 10px; padding: 22px 24px 6px; }
+    .wb { min-height: 90px; padding: 8px 3px; }
+    .wb-time { font-size: 12px; }
+    .wb-count { font-size: 15px; }
+    .right-panel { padding: 22px 22px 20px; gap: 18px; }
+    .wall-panel { flex: 0 0 60%; }
+  }
+
+  /* ══ TELAS INTERMEDIÁRIAS (900–1200px) ══ */
+  @media (max-width: 1200px) and (min-width: 901px) {
+    .wall-panel { flex: 0 0 58%; }
+    .blocks-area { grid-template-columns: repeat(8, 1fr); gap: 10px; padding: 20px 20px 6px; }
+    .wb { min-height: 80px; }
+  }
 
   /* ══ MOBILE ══ */
   @media (max-width: 1100px) {
