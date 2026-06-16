@@ -1218,11 +1218,17 @@ function updateStats(){
 
 let selIdx = CUR;
 
+function notifyModalOpen(){
+  if(!IN_IFRAME) return;
+  window.parent.postMessage({ type:'sentinelas-modal-open' }, '*');
+}
+
 function openModal(idx){
   if(idx!==null) selIdx=idx;
   document.getElementById('ss-time').textContent = `${bTime(selIdx)} – ${bEnd(selIdx)} (diariamente)`;
   buildMini();
   document.getElementById('modal-cadastro').classList.add('open');
+  notifyModalOpen();
 }
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
@@ -1329,7 +1335,7 @@ async function register(){
   document.getElementById('m-success').style.display = 'block';
 }
 
-function openPrayerPopup(){ document.getElementById('modal-pedidos').classList.add('open'); }
+function openPrayerPopup(){ document.getElementById('modal-pedidos').classList.add('open'); notifyModalOpen(); }
 
 function showToast(msg){
   const t=document.getElementById('toast');
